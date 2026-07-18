@@ -48,6 +48,11 @@ input,select,textarea{width:100%;border:1px solid #b8b2a8;background:var(--white
 .location-card{display:grid;grid-template-columns:1fr 1.3fr;border:1px solid var(--line);background:var(--white)}
 .location-copy{padding:24px}
 .location iframe{width:100%;min-height:360px;border:0;border-left:1px solid var(--line)}
+.site-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:28px 22px;border-top:1px solid var(--line);background:var(--ink);color:var(--white)}
+.site-footer nav{display:flex;gap:18px;flex-wrap:wrap;justify-content:flex-end;font-size:13px;font-weight:900;letter-spacing:.08em}
+.site-footer a{text-decoration:none}
+.site-footer nav a{color:#d9d5ca}
+.site-footer nav a:hover{color:var(--orange)}
 .cart-bar{position:fixed;right:18px;bottom:18px;left:18px;z-index:12;display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:860px;margin:auto;border:1px solid var(--line);background:var(--ink);color:var(--white);padding:14px}
 .cart-bar small{display:block;color:#bbb}
 dialog{width:min(920px,calc(100% - 24px));max-height:92vh;border:1px solid var(--line);background:var(--paper);padding:0}
@@ -73,6 +78,8 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
   .story h2{font-size:42px}
   .filters,.menu-grid,.location-card,.form-grid{grid-template-columns:1fr}
   .location iframe{border-left:0;border-top:1px solid var(--line)}
+  .site-footer{align-items:flex-start;flex-direction:column}
+  .site-footer nav{justify-content:flex-start}
 }
 @media(max-width:380px){
   .story h2{font-size:36px}
