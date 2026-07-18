@@ -1,0 +1,1 @@
+export default function Offline(){return <main className="login-page"><section className="login-card"><span className="brand-mark">小</span><h1>オフラインです</h1><p>メニューの一部は表示できますが、注文の確定にはインターネット接続が必要です。接続を確認してから再読み込みしてください。</p><a className="button" href="/">接続後に再読み込み</a></section></main>}

@@ -1,0 +1,1 @@
+export default function Privacy(){return <main className="shell section"><a href="/">← トップへ戻る</a><h1 style={{fontSize:42,marginTop:24}}>プライバシーポリシー</h1><p>当店は、注文受付のために氏名、電話番号、メールアドレス、受取情報を取得します。取得した情報は、注文対応、本人確認、必要な連絡、サービス改善のためにのみ利用し、法令に基づく場合を除き第三者へ提供しません。</p><p>注文情報の確認や削除に関するお問い合わせは、店舗メールアドレスへご連絡ください。</p></main>}

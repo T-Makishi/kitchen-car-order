@@ -1,0 +1,1 @@
+export default function Terms(){return <main className="shell section"><a href="/">← トップへ戻る</a><h1 style={{fontSize:42,marginTop:24}}>利用規約</h1><p>表示価格は税込です。受取時刻は目安であり、混雑や天候により前後する場合があります。内容変更やキャンセルは店舗へ直接ご連絡ください。食物アレルギーがある場合は注文前に店舗へご相談ください。</p></main>}
