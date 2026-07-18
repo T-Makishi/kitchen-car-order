@@ -65,6 +65,13 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 .total{display:flex;justify-content:space-between;font-size:24px;font-weight:950;margin:18px 0}
 .error{border:1px solid #aa2c1d;background:#ffe1dc;color:#7d1c12;padding:12px;font-weight:900}
 .success{border:1px solid #1f7a3a;background:#e8f7ed;padding:18px}
+.admin-gateway{min-height:100vh;display:grid;place-items:center;background:var(--ink);color:var(--white);padding:22px}
+.gateway-card{width:min(720px,100%);border:1px solid #3b3c36;background:#171914;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.28)}
+.gateway-card .brand{margin-bottom:42px}
+.gateway-card h1{font-size:clamp(36px,8vw,64px)}
+.gateway-card p:not(.eyebrow){color:#d5d1c8;font-size:18px}
+.gateway-button{display:inline-block;margin-top:20px}
+.gateway-note{margin-top:18px;font-size:14px!important;color:#9f9b92!important}
 @media(max-width:760px){
   .topbar{padding:14px 12px}
   .brand{gap:10px;font-size:13px}
