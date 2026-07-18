@@ -29,14 +29,43 @@ function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-export async function hashPassword(password: string, salt = bytesToBase64(crypto.getRandomValues(new Uint8Array(16)))): Promise<{ hash: string; salt: string }> {
+const CURRENT_PASSWORD_ITERATIONS = 100_000;
+const LEGACY_PASSWORD_ITERATIONS = 310_000;
+const PASSWORD_SALT_SCHEME = "pbkdf2-sha256";
+
+function createPasswordSalt(): string {
+  const value = bytesToBase64(crypto.getRandomValues(new Uint8Array(16)));
+  return `${PASSWORD_SALT_SCHEME}$${CURRENT_PASSWORD_ITERATIONS}$${value}`;
+}
+
+function parsePasswordSalt(storedSalt: string): { iterations: number; value: string } {
+  const [scheme, iterationsText, value] = storedSalt.split("$");
+  if (scheme !== PASSWORD_SALT_SCHEME) {
+    return { iterations: LEGACY_PASSWORD_ITERATIONS, value: storedSalt };
+  }
+
+  const iterations = Number(iterationsText);
+  if (!Number.isInteger(iterations) || iterations < 1 || !value) {
+    throw new Error("保存されたパスワード形式が不正です");
+  }
+  return { iterations, value };
+}
+
+export async function hashPassword(password: string, salt = createPasswordSalt()): Promise<{ hash: string; salt: string }> {
+  const parsedSalt = parsePasswordSalt(salt);
   const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 310_000 }, material, 256);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(parsedSalt.value), iterations: parsedSalt.iterations }, material, 256);
   return { hash: bytesToBase64(new Uint8Array(bits)), salt };
 }
 
 export async function verifyPassword(password: string, salt: string, expected: string): Promise<boolean> {
-  const { hash } = await hashPassword(password, salt);
+  let hash: string;
+  try {
+    ({ hash } = await hashPassword(password, salt));
+  } catch (error) {
+    if (error instanceof Error && error.name === "NotSupportedError") return false;
+    throw error;
+  }
   if (hash.length !== expected.length) return false;
   let result = 0;
   for (let index = 0; index < hash.length; index += 1) result |= hash.charCodeAt(index) ^ expected.charCodeAt(index);

@@ -102,7 +102,7 @@ Prisma とローカルファイル SQLite ではなく D1／Drizzle を採用す
 
 ## 6. 認証・セキュリティ設計
 
-- パスワード: Web Crypto API で PBKDF2-SHA-256、ランダムソルト、高反復回数。平文を永続化・記録しない
+- パスワード: Web Crypto API で PBKDF2-SHA-256、ランダムソルト、実行基盤上限の反復回数。方式と反復回数をソルト文字列に記録し、平文を永続化・記録しない
 - セッション: 256 bit 乱数、DB には SHA-256 ハッシュのみ、Cookie は HttpOnly／SameSite=Lax／本番 Secure／Path=/
 - ログイン制限: IP と管理者の双方で失敗回数を計数し、一時ロックする
 - CSRF: セッション紐付けトークン＋Origin/Host 検証
