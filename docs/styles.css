@@ -1,0 +1,82 @@
+:root{
+  --ink:#10110f;
+  --paper:#f4f0e8;
+  --orange:#ff4a22;
+  --line:#22231f;
+  --muted:#6f716a;
+  --white:#fffdf7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.65}
+button,input,select,textarea{font:inherit}
+a{color:inherit}
+.topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;border-bottom:1px solid #333;background:var(--ink);color:var(--white)}
+.brand{display:flex;align-items:center;gap:14px;text-decoration:none;font-weight:900;letter-spacing:.04em}
+.brand small{display:block;font-size:10px;letter-spacing:.28em}
+.brand-mark{display:grid;place-items:center;width:48px;height:48px;background:var(--orange);color:var(--ink);font-size:26px}
+.cart-button,.button{border:1px solid var(--line);background:var(--orange);color:var(--ink);font-weight:900;letter-spacing:.1em;text-decoration:none;padding:14px 18px;cursor:pointer}
+.cart-button{background:transparent;color:var(--white);border-color:#555}
+.cart-button span{display:inline-grid;place-items:center;min-width:42px;margin-left:10px;background:var(--orange);color:var(--ink);padding:8px}
+.secondary{background:transparent;color:var(--ink)}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;min-height:620px;background:var(--ink);color:var(--white);border-bottom:1px solid var(--line)}
+.hero-visual{background:linear-gradient(90deg,rgba(16,17,15,.92),rgba(16,17,15,.1)),url("https://machino-kitchen-car.makishi0520.chatgpt.site/og.png") center/cover}
+.hero-copy{display:flex;flex-direction:column;justify-content:center;padding:48px}
+.eyebrow{margin:0 0 16px;color:var(--orange);font-size:13px;font-weight:900;letter-spacing:.3em}
+h1,h2,h3,p{margin-top:0}
+h1{margin-bottom:20px;font-size:64px;line-height:1;font-weight:950;letter-spacing:0}
+h1 span{display:block;color:var(--orange)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.ticker{overflow:hidden;border-block:1px solid var(--line);background:var(--orange);padding:18px 22px;font-weight:950;letter-spacing:.22em;white-space:nowrap}
+.section{max-width:1180px;margin:auto;padding:72px 22px}
+.story h2{font-size:64px;line-height:1.05;letter-spacing:0}
+.story h2 span,.story h2 em{display:block;white-space:nowrap;font-style:normal}
+.story h2 em{color:var(--orange)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding-bottom:18px}
+.section-head h2,.location h2{font-size:44px;line-height:1.1}
+.filters{display:grid;grid-template-columns:1fr 220px;gap:10px;margin:22px 0}
+input,select,textarea{width:100%;border:1px solid #b8b2a8;background:var(--white);padding:14px}
+.menu-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.menu-card{display:grid;border:1px solid var(--line);background:var(--white);min-height:100%}
+.menu-image{height:180px;background:#1b1c19;display:grid;place-items:center;overflow:hidden;color:var(--orange);font-weight:950;letter-spacing:.16em}
+.menu-image img{width:100%;height:100%;object-fit:cover}
+.menu-body{padding:18px;display:grid;gap:10px}
+.menu-body h3{font-size:24px;margin:0}
+.price-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}
+.price{font-size:24px;font-weight:950}
+.mini{padding:10px 12px;border:1px solid var(--line);background:var(--orange);font-weight:900;cursor:pointer}
+.mini:disabled{opacity:.45;cursor:not-allowed}
+.location-card{display:grid;grid-template-columns:1fr 1.3fr;border:1px solid var(--line);background:var(--white)}
+.location-copy{padding:24px}
+.location iframe{width:100%;min-height:360px;border:0;border-left:1px solid var(--line)}
+.cart-bar{position:fixed;right:18px;bottom:18px;left:18px;z-index:12;display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:860px;margin:auto;border:1px solid var(--line);background:var(--ink);color:var(--white);padding:14px}
+.cart-bar small{display:block;color:#bbb}
+dialog{width:min(920px,calc(100% - 24px));max-height:92vh;border:1px solid var(--line);background:var(--paper);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.close{float:right;margin:12px;border:1px solid var(--line);background:var(--white);font-size:26px;font-weight:900;width:52px;height:52px;cursor:pointer}
+.dialog-inner{clear:both;padding:28px}
+.cart-line{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid #d5cec2;padding:14px 0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:1/-1}
+.total{display:flex;justify-content:space-between;font-size:24px;font-weight:950;margin:18px 0}
+.error{border:1px solid #aa2c1d;background:#ffe1dc;color:#7d1c12;padding:12px;font-weight:900}
+.success{border:1px solid #1f7a3a;background:#e8f7ed;padding:18px}
+@media(max-width:760px){
+  .topbar{padding:14px 12px}
+  .brand{gap:10px;font-size:13px}
+  .brand small{font-size:9px;letter-spacing:.22em}
+  .brand-mark{width:40px;height:40px;font-size:22px}
+  .cart-button{padding:9px}
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-visual{height:240px}
+  .hero-copy{padding:36px 22px 48px}
+  h1{font-size:48px}
+  .story h2{font-size:42px}
+  .filters,.menu-grid,.location-card,.form-grid{grid-template-columns:1fr}
+  .location iframe{border-left:0;border-top:1px solid var(--line)}
+}
+@media(max-width:380px){
+  .story h2{font-size:36px}
+  .topbar{gap:8px}
+  .brand span:last-child{max-width:150px}
+  .cart-button span{min-width:34px;margin-left:4px}
+}

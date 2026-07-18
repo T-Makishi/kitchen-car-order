@@ -4,6 +4,7 @@ import { sampleMenu, locations } from "./catalog";
 const DEFAULT_STORE_EMAIL = "makishi0520@gmail.com";
 
 type AppEnv = { DB: D1Database; UPLOADS?: R2Bucket; ADMIN_SETUP_TOKEN?: string; ADMIN_RECOVERY_TOKEN?: string; EMAIL_MODE?: string; APP_URL?: string; ORDER_NOTIFICATION_EMAIL?: string; EMAIL_API_URL?: string; EMAIL_API_TOKEN?: string; SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASS?: string; SMTP_FROM?: string };
+const PUBLIC_API_ORIGINS = new Set(["https://t-makishi.github.io"]);
 
 export function appEnv(): AppEnv { return env as unknown as AppEnv; }
 export function nowIso(): string { return new Date().toISOString(); }
@@ -169,4 +170,20 @@ export function securityHeaders(headers = new Headers()): Headers {
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   headers.set("Content-Security-Policy", "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src https://www.google.com https://maps.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   return headers;
+}
+
+export function publicApiHeaders(request: Request, headers = new Headers()): Headers {
+  securityHeaders(headers);
+  const origin = request.headers.get("origin");
+  if (origin && PUBLIC_API_ORIGINS.has(origin)) {
+    headers.set("Access-Control-Allow-Origin", origin);
+    headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    headers.set("Access-Control-Allow-Headers", "Content-Type");
+    headers.set("Vary", "Origin");
+  }
+  return headers;
+}
+
+export function publicOptionsResponse(request: Request): Response {
+  return new Response(null, { status: 204, headers: publicApiHeaders(request) });
 }

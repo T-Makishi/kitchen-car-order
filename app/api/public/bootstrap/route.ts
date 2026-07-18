@@ -1,8 +1,12 @@
-import { appEnv, ensureDatabase, securityHeaders } from "@/lib/server";
+import { appEnv, ensureDatabase, publicApiHeaders, publicOptionsResponse } from "@/lib/server";
 import { sampleMenu, createPickupTimes } from "@/lib/catalog";
 import { isConfiguredPickupLocation } from "@/lib/domain";
 
-export async function GET() {
+export function OPTIONS(request: Request) {
+  return publicOptionsResponse(request);
+}
+
+export async function GET(request: Request) {
   await ensureDatabase();
   const db = appEnv().DB;
   const [setting, menuRows, locationRows] = await Promise.all([
@@ -18,5 +22,5 @@ export async function GET() {
   const locations = locationRows.results
     .filter((row) => isConfiguredPickupLocation(String(row.map_url), String(row.address)))
     .map((row) => ({ id: String(row.id), name: String(row.name), address: String(row.address), mapUrl: String(row.map_url) }));
-  return Response.json({ setting, menu, locations, date, pickupTimes: createPickupTimes(), announcement: locations.length ? `本日の販売場所：${locations[0].name}` : "本日の販売場所は準備中です。" }, { headers: securityHeaders() });
+  return Response.json({ setting, menu, locations, date, pickupTimes: createPickupTimes(), announcement: locations.length ? `本日の販売場所：${locations[0].name}` : "本日の販売場所は準備中です。" }, { headers: publicApiHeaders(request) });
 }

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="まちの小さなキッチンカーのメニュー閲覧と事前注文ページです。">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://machino-kitchen-car.makishi0520.chatgpt.site; img-src 'self' data: https://machino-kitchen-car.makishi0520.chatgpt.site; style-src 'self'; script-src 'self'; frame-src https://www.google.com https://maps.google.com; base-uri 'self'; form-action 'self'">
+    <title>まちの小さなキッチンカー｜事前注文</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="トップへ">
+        <span class="brand-mark">M</span>
+        <span><small>MACHI NO CHIISANA</small>まちの小さなキッチンカー</span>
+      </a>
+      <button class="cart-button" type="button" data-open-cart>CART <span data-cart-count>00</span></button>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-visual" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">PRE-ORDER / PICK UP</p>
+          <h1>できたてを、<span>待たずに。</span></h1>
+          <p>受取時間を選んで、店頭で受け取る。お支払いは受取時にSquareで。</p>
+          <div class="actions">
+            <a class="button" href="#menu">メニューを見る</a>
+            <button class="button secondary" type="button" data-open-status>注文状況</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="ticker">RICE BOWLS · FISH DOGS · SMOOTHIES · FRIDAY CURRY</div>
+
+      <section class="section story">
+        <p class="eyebrow">OUR STORY</p>
+        <h2><span>小さいからこそ</span><em>ていねいに。</em></h2>
+        <p>朝のやさしいごはん、気軽に楽しめる丼や軽食、季節のドリンク。いつもの町に、小さな楽しみを運びます。</p>
+      </section>
+
+      <section class="section" id="menu">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">TODAY'S MENU</p>
+            <h2>メニュー</h2>
+          </div>
+          <span data-open-state>読み込み中</span>
+        </div>
+        <div class="filters">
+          <input type="search" placeholder="商品名で検索" aria-label="商品名で検索" data-search>
+          <select aria-label="カテゴリー" data-category></select>
+        </div>
+        <div class="menu-grid" data-menu></div>
+      </section>
+
+      <section class="section location" id="shop">
+        <p class="eyebrow">FIND THE TRUCK</p>
+        <h2>本日の販売場所</h2>
+        <div data-location></div>
+      </section>
+    </main>
+
+    <div class="cart-bar" hidden data-cart-bar>
+      <span><b data-cart-total>0円</b><small data-cart-summary>0点</small></span>
+      <button class="button" type="button" data-open-cart>注文へ進む</button>
+    </div>
+
+    <dialog data-dialog>
+      <button class="close" type="button" data-close-dialog aria-label="閉じる">×</button>
+      <div data-dialog-body></div>
+    </dialog>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>

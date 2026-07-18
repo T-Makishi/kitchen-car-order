@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { calculateOrderTotal, escapeHtml, isConfiguredPickupLocation, isValidJapanesePhone } from "@/lib/domain";
-import { appEnv, deliverEmail, ensureDatabase, nowIso, securityHeaders, sha256, uid } from "@/lib/server";
+import { appEnv, deliverEmail, ensureDatabase, nowIso, publicApiHeaders, publicOptionsResponse, sha256, uid } from "@/lib/server";
 import { sampleMenu } from "@/lib/catalog";
 
 const orderSchema = z.object({
@@ -22,23 +22,23 @@ const orderSchema = z.object({
 export async function POST(request: Request) {
   await ensureDatabase();
   const contentLength = Number(request.headers.get("content-length") ?? 0);
-  if (contentLength > 100_000) return Response.json({ error: "送信内容が大きすぎます" }, { status: 413 });
+  if (contentLength > 100_000) return Response.json({ error: "送信内容が大きすぎます" }, { status: 413, headers: publicApiHeaders(request) });
   const parsed = orderSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return Response.json({ error: "入力内容を確認してください", fields: z.flattenError(parsed.error).fieldErrors }, { status: 400, headers: securityHeaders() });
+  if (!parsed.success) return Response.json({ error: "入力内容を確認してください", fields: z.flattenError(parsed.error).fieldErrors }, { status: 400, headers: publicApiHeaders(request) });
   const input = parsed.data;
   const db = appEnv().DB;
   const setting = await db.prepare("SELECT minimum_order_amount,order_status,notification_email FROM store_settings WHERE id = 'store'").first<{minimum_order_amount:number;order_status:string;notification_email:string}>();
-  if (!setting || setting.order_status !== "OPEN") return Response.json({ error: "現在、事前注文の受付を停止しています" }, { status: 409 });
+  if (!setting || setting.order_status !== "OPEN") return Response.json({ error: "現在、事前注文の受付を停止しています" }, { status: 409, headers: publicApiHeaders(request) });
   const existing = await db.prepare("SELECT order_number,verification_hash,pickup_at,pickup_location_name,total,status FROM orders WHERE idempotency_key = ?").bind(input.idempotencyKey).first();
-  if (existing) return Response.json({ duplicate: true, order: existing }, { headers: securityHeaders() });
+  if (existing) return Response.json({ duplicate: true, order: existing }, { headers: publicApiHeaders(request) });
 
   const location = await db.prepare("SELECT id,name,address,map_url FROM business_locations WHERE id = ? AND is_active = 1").bind(input.locationId).first<{ id:string;name:string;address:string;map_url:string }>();
-  if (!location || !isConfiguredPickupLocation(location.map_url, location.address)) return Response.json({ error: "本日の販売場所が設定されていません" }, { status: 409 });
+  if (!location || !isConfiguredPickupLocation(location.map_url, location.address)) return Response.json({ error: "本日の販売場所が設定されていません" }, { status: 409, headers: publicApiHeaders(request) });
   const pickupLocal = `${input.pickupDate}T${input.pickupTime}:00+09:00`;
   const pickup = new Date(pickupLocal);
-  if (!Number.isFinite(pickup.getTime()) || pickup <= new Date()) return Response.json({ error: "過去または受付終了後の受取時刻は選択できません" }, { status: 400 });
+  if (!Number.isFinite(pickup.getTime()) || pickup <= new Date()) return Response.json({ error: "過去または受付終了後の受取時刻は選択できません" }, { status: 400, headers: publicApiHeaders(request) });
   const minutes = Number(input.pickupTime.slice(0, 2)) * 60 + Number(input.pickupTime.slice(3));
-  if (minutes < 690 || minutes > 840 || minutes % 15 !== 0) return Response.json({ error: "営業時間内の受取枠を選択してください" }, { status: 400 });
+  if (minutes < 690 || minutes > 840 || minutes % 15 !== 0) return Response.json({ error: "営業時間内の受取枠を選択してください" }, { status: 400, headers: publicApiHeaders(request) });
 
   const currentRows = await db.prepare(`SELECT id,name,price,max_per_order,is_sold_out,is_published FROM menu_items WHERE id IN (${input.items.map(() => "?").join(",")})`).bind(...input.items.map((line) => line.itemId)).all<Record<string, unknown>>();
   let resolved;
@@ -54,9 +54,9 @@ export async function POST(request: Request) {
       if (count < group.min || count > group.max) throw new Error(`${group.name}の選択数を確認してください`);
     }
     return { line, item, selected };
-  }); } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "商品を再確認してください" }, { status: 409 }); }
+  }); } catch (error) { return Response.json({ error: error instanceof Error ? error.message : "商品を再確認してください" }, { status: 409, headers: publicApiHeaders(request) }); }
   const total = calculateOrderTotal(resolved.map(({ item, line, selected }) => ({ unitPrice: item.price, quantity: line.quantity, optionPrices: selected.map((choice) => choice.price) })));
-  if (total < setting.minimum_order_amount) return Response.json({ error: `最低注文金額は${setting.minimum_order_amount}円です` }, { status: 400 });
+  if (total < setting.minimum_order_amount) return Response.json({ error: `最低注文金額は${setting.minimum_order_amount}円です` }, { status: 400, headers: publicApiHeaders(request) });
 
   const verificationCode = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, "0");
   const verificationHash = await sha256(verificationCode);
@@ -82,5 +82,9 @@ export async function POST(request: Request) {
   const customerMail=await deliverEmail({orderId,type:"ORDER_CONFIRMATION",to:input.email,subject,text:textBody,html:htmlBody});
   const storeMail=await deliverEmail({orderId,type:"NEW_ORDER",to:setting.notification_email||appEnv().ORDER_NOTIFICATION_EMAIL||"makishi0520@gmail.com",subject:`新規事前注文 ${orderNumber}`,text:textBody,html:htmlBody});
   await db.prepare("UPDATE orders SET email_status=?,updated_at=? WHERE id=?").bind(customerMail==="FAILED"||storeMail==="FAILED"?"FAILED":customerMail==="PREVIEW"?"PREVIEW":"SENT",nowIso(),orderId).run();
-  return Response.json({ order: { orderNumber, verificationCode, pickupAt: pickup.toISOString(), pickupLocationName: location.name, total, status: "NEW" } }, { status: 201, headers: securityHeaders() });
+  return Response.json({ order: { orderNumber, verificationCode, pickupAt: pickup.toISOString(), pickupLocationName: location.name, total, status: "NEW" } }, { status: 201, headers: publicApiHeaders(request) });
+}
+
+export function OPTIONS(request: Request) {
+  return publicOptionsResponse(request);
 }
