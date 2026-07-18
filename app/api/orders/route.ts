@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { calculateOrderTotal, escapeHtml, isGoogleMapsUrl, isValidJapanesePhone } from "@/lib/domain";
+import { calculateOrderTotal, escapeHtml, isConfiguredPickupLocation, isValidJapanesePhone } from "@/lib/domain";
 import { appEnv, deliverEmail, ensureDatabase, nowIso, securityHeaders, sha256, uid } from "@/lib/server";
 import { sampleMenu } from "@/lib/catalog";
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   if (existing) return Response.json({ duplicate: true, order: existing }, { headers: securityHeaders() });
 
   const location = await db.prepare("SELECT id,name,address,map_url FROM business_locations WHERE id = ? AND is_active = 1").bind(input.locationId).first<{ id:string;name:string;address:string;map_url:string }>();
-  if (!location || !isGoogleMapsUrl(location.map_url)) return Response.json({ error: "本日の販売場所が設定されていません" }, { status: 409 });
+  if (!location || !isConfiguredPickupLocation(location.map_url, location.address)) return Response.json({ error: "本日の販売場所が設定されていません" }, { status: 409 });
   const pickupLocal = `${input.pickupDate}T${input.pickupTime}:00+09:00`;
   const pickup = new Date(pickupLocal);
   if (!Number.isFinite(pickup.getTime()) || pickup <= new Date()) return Response.json({ error: "過去または受付終了後の受取時刻は選択できません" }, { status: 400 });

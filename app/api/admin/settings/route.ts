@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isGoogleMapsUrl } from "@/lib/domain";
+import { isConfiguredPickupLocation, isGoogleMapsUrl } from "@/lib/domain";
 import { appEnv, nowIso, requireAdmin, securityHeaders, uid } from "@/lib/server";
 
 const googleMapsUrl = z.url().max(1000).refine(isGoogleMapsUrl, "Googleマップの共有URLを入力してください");
@@ -20,7 +20,7 @@ const settingsSchema = z.object({
   locationName: z.string().trim().min(1).max(100),
   locationAddress: z.string().trim().min(1).max(300),
   mapUrl: googleMapsUrl,
-});
+}).refine((value) => isConfiguredPickupLocation(value.mapUrl, value.locationAddress), { path: ["locationAddress"], message: "販売場所の住所を入力してください" });
 
 export async function GET(request: Request) {
   await requireAdmin(request);

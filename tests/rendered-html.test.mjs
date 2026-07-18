@@ -95,8 +95,9 @@ test("旧Instagram受取場所をGoogleマップとして誤表示しない", as
     readFile(new URL("../app/api/orders/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../components/CustomerApp.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(domain, /isGoogleMapsUrl/);
-  assert.match(bootstrap, /filter\(\(row\) => isGoogleMapsUrl/);
+  assert.match(domain, /isConfiguredPickupLocation/);
+  assert.match(domain, /!\/instagram\/i\.test/);
+  assert.match(bootstrap, /filter\(\(row\) => isConfiguredPickupLocation/);
   assert.match(orders, /本日の販売場所が設定されていません/);
   assert.match(customer, /販売場所を準備中/);
 });

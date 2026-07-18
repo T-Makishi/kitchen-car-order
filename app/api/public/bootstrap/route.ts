@@ -1,6 +1,6 @@
 import { appEnv, ensureDatabase, securityHeaders } from "@/lib/server";
 import { sampleMenu, createPickupTimes } from "@/lib/catalog";
-import { isGoogleMapsUrl } from "@/lib/domain";
+import { isConfiguredPickupLocation } from "@/lib/domain";
 
 export async function GET() {
   await ensureDatabase();
@@ -16,7 +16,7 @@ export async function GET() {
   });
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
   const locations = locationRows.results
-    .filter((row) => isGoogleMapsUrl(String(row.map_url)))
+    .filter((row) => isConfiguredPickupLocation(String(row.map_url), String(row.address)))
     .map((row) => ({ id: String(row.id), name: String(row.name), address: String(row.address), mapUrl: String(row.map_url) }));
   return Response.json({ setting, menu, locations, date, pickupTimes: createPickupTimes(), announcement: locations.length ? `本日の販売場所：${locations[0].name}` : "本日の販売場所は準備中です。" }, { headers: securityHeaders() });
 }

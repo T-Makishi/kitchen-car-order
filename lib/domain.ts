@@ -85,3 +85,8 @@ export function isGoogleMapsUrl(value: string): boolean {
     return false;
   }
 }
+
+export function isConfiguredPickupLocation(mapUrl: string, address: string): boolean {
+  const normalizedAddress = address.trim();
+  return isGoogleMapsUrl(mapUrl) && normalizedAddress.length >= 5 && !/instagram/i.test(normalizedAddress);
+}
