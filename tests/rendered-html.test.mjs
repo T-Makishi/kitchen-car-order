@@ -101,3 +101,14 @@ test("旧Instagram受取場所をGoogleマップとして誤表示しない", as
   assert.match(orders, /本日の販売場所が設定されていません/);
   assert.match(customer, /販売場所を準備中/);
 });
+
+test("ストーリー見出しはスマートフォンでも意味単位の2行を維持する", async () => {
+  const [customer, css] = await Promise.all([
+    readFile(new URL("../components/CustomerApp.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(customer, /story-catch/);
+  assert.match(customer, /<span>小さいからこそ<\/span><em>ていねいに。<\/em>/);
+  assert.match(css, /\.story-catch>span,\.story-catch>em\{display:block;white-space:nowrap;word-break:keep-all\}/);
+  assert.match(css, /\.story-catch\{font-size:clamp\(36px,12vw,64px\)!important/);
+});
