@@ -23,3 +23,17 @@ test("注文APIに冪等性とサーバー価格再計算がある", async () =>
   assert.match(source, /INSERT INTO orders/);
   assert.match(source, /deliverEmail/);
 });
+
+test("管理者再設定は一時キーで保護し業務データを削除しない", async () => {
+  const [route, login] = await Promise.all([
+    readFile(new URL("../app/api/admin/recovery/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../components/AdminLogin.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(route, /ADMIN_RECOVERY_TOKEN/);
+  assert.match(route, /constantTimeEqual/);
+  assert.match(route, /DELETE FROM admin_sessions/);
+  assert.match(route, /DELETE FROM admins/);
+  assert.doesNotMatch(route, /DELETE FROM orders/);
+  assert.doesNotMatch(route, /DELETE FROM menu_items/);
+  assert.match(login, /管理者再設定/);
+});

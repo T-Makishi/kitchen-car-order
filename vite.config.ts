@@ -19,6 +19,7 @@ export default defineConfig(async ({ mode }) => {
     compatibility_flags: ["nodejs_compat"],
     vars: {
       ADMIN_SETUP_TOKEN: environmentValue("ADMIN_SETUP_TOKEN"),
+      ADMIN_RECOVERY_TOKEN: environmentValue("ADMIN_RECOVERY_TOKEN"),
       EMAIL_MODE: environmentValue("EMAIL_MODE", "preview"),
       EMAIL_API_URL: environmentValue("EMAIL_API_URL"),
       EMAIL_API_TOKEN: environmentValue("EMAIL_API_TOKEN"),

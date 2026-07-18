@@ -7,6 +7,7 @@ export async function GET() {
   return Response.json({
     setupRequired: !existingAdmin,
     setupConfigured: Boolean(appEnv().ADMIN_SETUP_TOKEN),
+    recoveryConfigured: Boolean(appEnv().ADMIN_RECOVERY_TOKEN),
   }, { headers: securityHeaders() });
 }
 

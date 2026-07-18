@@ -3,7 +3,7 @@ import { sampleMenu, locations } from "./catalog";
 
 const DEFAULT_STORE_EMAIL = "makishi0520@gmail.com";
 
-type AppEnv = { DB: D1Database; UPLOADS?: R2Bucket; ADMIN_SETUP_TOKEN?: string; EMAIL_MODE?: string; APP_URL?: string; ORDER_NOTIFICATION_EMAIL?: string; EMAIL_API_URL?: string; EMAIL_API_TOKEN?: string; SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASS?: string; SMTP_FROM?: string };
+type AppEnv = { DB: D1Database; UPLOADS?: R2Bucket; ADMIN_SETUP_TOKEN?: string; ADMIN_RECOVERY_TOKEN?: string; EMAIL_MODE?: string; APP_URL?: string; ORDER_NOTIFICATION_EMAIL?: string; EMAIL_API_URL?: string; EMAIL_API_TOKEN?: string; SMTP_HOST?: string; SMTP_PORT?: string; SMTP_USER?: string; SMTP_PASS?: string; SMTP_FROM?: string };
 
 export function appEnv(): AppEnv { return env as unknown as AppEnv; }
 export function nowIso(): string { return new Date().toISOString(); }
@@ -12,6 +12,15 @@ export function uid(prefix = "id"): string { return `${prefix}_${crypto.randomUU
 export async function sha256(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function constantTimeEqual(left: string, right: string): Promise<boolean> {
+  const [leftHash, rightHash] = await Promise.all([sha256(left), sha256(right)]);
+  let difference = 0;
+  for (let index = 0; index < leftHash.length; index += 1) {
+    difference |= leftHash.charCodeAt(index) ^ rightHash.charCodeAt(index);
+  }
+  return difference === 0;
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
