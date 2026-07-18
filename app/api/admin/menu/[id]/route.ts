@@ -4,7 +4,7 @@ import { appEnv, nowIso, requireAdmin, securityHeaders, uid } from "@/lib/server
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
   const session = await requireAdmin(request, true);
   const { id } = await context.params;
-  const parsed = z.object({ isSoldOut: z.boolean().optional(), isPublished: z.boolean().optional(), isRecommended: z.boolean().optional(), price: z.number().int().min(0).max(1_000_000).optional(), name: z.string().trim().min(1).max(80).optional(), description: z.string().trim().min(1).max(300).optional(), categoryId: z.enum(["ごはん", "軽食", "ドリンク"]).optional(), allergens: z.string().max(300).optional(), ingredients: z.string().max(300).optional(), imageUrl: z.string().max(500).nullable().optional() }).safeParse(await request.json().catch(() => null));
+  const parsed = z.object({ isSoldOut: z.boolean().optional(), isPublished: z.boolean().optional(), isRecommended: z.boolean().optional(), price: z.number().int().min(0).max(1_000_000).optional(), name: z.string().trim().min(1).max(80).optional(), description: z.string().trim().min(1).max(300).optional(), categoryId: z.string().trim().min(1).max(40).optional(), allergens: z.string().max(300).optional(), ingredients: z.string().max(300).optional(), imageUrl: z.string().max(500).nullable().optional() }).safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "更新内容が不正です" }, { status: 400 });
   const row = await appEnv().DB.prepare("SELECT * FROM menu_items WHERE id = ?").bind(id).first<Record<string, unknown>>();
   if (!row) return Response.json({ error: "商品が見つかりません" }, { status: 404 });

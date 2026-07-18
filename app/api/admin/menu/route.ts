@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { appEnv, nowIso, requireAdmin, securityHeaders, uid } from "@/lib/server";
 
-const createSchema = z.object({ name: z.string().trim().min(1).max(80), categoryId: z.enum(["ごはん", "軽食", "ドリンク"]), description: z.string().trim().min(1).max(300), price: z.number().int().min(0).max(1_000_000), ingredients: z.string().max(300).default(""), allergens: z.string().max(300).default("該当なし"), duplicateFrom: z.string().optional() });
+const createSchema = z.object({ name: z.string().trim().min(1).max(80), categoryId: z.string().trim().min(1).max(40), description: z.string().trim().min(1).max(300), price: z.number().int().min(0).max(1_000_000), ingredients: z.string().max(300).default(""), allergens: z.string().max(300).default("該当なし"), duplicateFrom: z.string().optional() });
 
 export async function POST(request: Request) {
   const session = await requireAdmin(request, true);

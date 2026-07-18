@@ -17,6 +17,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     appEnv().DB.prepare("UPDATE orders SET status = ?, admin_note = COALESCE(?,admin_note), updated_at = ? WHERE id = ?").bind(parsed.data.status, parsed.data.adminNote ?? null, timestamp, id),
     appEnv().DB.prepare("INSERT INTO audit_logs (id,admin_id,action,target_type,target_id,summary,ip_hash,created_at) VALUES (?,?,?,?,?,?,?,?)").bind(uid("audit"), session.adminId, "ORDER_STATUS_CHANGED", "Order", id, `${current.status} → ${parsed.data.status}`, null, timestamp),
   ]);
-  if(parsed.data.status!==current.status){const statusLabel=customerStatusLabels[parsed.data.status]??parsed.data.status;const subject=parsed.data.status==="READY"?`【${current.order_number}】受取準備ができました`:parsed.data.status==="CANCELLED"?`【${current.order_number}】注文をキャンセルしました`:`【${current.order_number}】注文状況を更新しました`;const text=`${current.customer_name} 様\n注文 ${current.order_number} の状態: ${statusLabel}\n受取場所: ${current.pickup_location_name}`;await deliverEmail({orderId:id,type:`STATUS_${parsed.data.status}`,to:current.email,subject,text,html:`<p>${current.customer_name} 様</p><p>注文 <strong>${current.order_number}</strong> の状態を更新しました。</p><p>${statusLabel}</p>`})}
-  return Response.json({ ok: true }, { headers: securityHeaders() });
+  let delivery: "SENT" | "PREVIEW" | "FAILED" | "SKIPPED" = "SKIPPED";
+  if (parsed.data.status !== current.status) {
+    const statusLabel = customerStatusLabels[parsed.data.status] ?? parsed.data.status;
+    const subject = parsed.data.status === "READY"
+      ? `【${current.order_number}】受取準備ができました`
+      : parsed.data.status === "CANCELLED"
+        ? `【${current.order_number}】注文をキャンセルしました`
+        : `【${current.order_number}】注文状況を更新しました`;
+    const text = `${current.customer_name} 様\n注文 ${current.order_number} の状態: ${statusLabel}\n受取場所: ${current.pickup_location_name}`;
+    delivery = await deliverEmail({ orderId: id, type: `STATUS_${parsed.data.status}`, to: current.email, subject, text, html: `<p>${current.customer_name} 様</p><p>注文 <strong>${current.order_number}</strong> の状態を更新しました。</p><p>${statusLabel}</p>` });
+  }
+  return Response.json({ ok: true, delivery }, { headers: securityHeaders() });
 }

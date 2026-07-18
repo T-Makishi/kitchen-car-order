@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { calculateOrderTotal, escapeHtml, isValidJapanesePhone } from "@/lib/domain";
 import { appEnv, deliverEmail, ensureDatabase, nowIso, securityHeaders, sha256, uid } from "@/lib/server";
-import { locations, sampleMenu } from "@/lib/catalog";
+import { sampleMenu } from "@/lib/catalog";
 
 const orderSchema = z.object({
   idempotencyKey: z.string().uuid(),
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const existing = await db.prepare("SELECT order_number,verification_hash,pickup_at,pickup_location_name,total,status FROM orders WHERE idempotency_key = ?").bind(input.idempotencyKey).first();
   if (existing) return Response.json({ duplicate: true, order: existing }, { headers: securityHeaders() });
 
-  const location = locations.find((value) => value.id === input.locationId);
+  const location = await db.prepare("SELECT id,name,address,map_url FROM business_locations WHERE id = ? AND is_active = 1").bind(input.locationId).first<{ id:string;name:string;address:string;map_url:string }>();
   if (!location) return Response.json({ error: "受取場所が不正です" }, { status: 400 });
   const pickupLocal = `${input.pickupDate}T${input.pickupTime}:00+09:00`;
   const pickup = new Date(pickupLocal);
