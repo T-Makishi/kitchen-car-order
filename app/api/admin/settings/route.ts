@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { isGoogleMapsUrl } from "@/lib/domain";
 import { appEnv, nowIso, requireAdmin, securityHeaders, uid } from "@/lib/server";
 
-const httpsUrl = z.url().refine((value) => new URL(value).protocol === "https:", "HTTPSのURLを入力してください");
+const googleMapsUrl = z.url().max(1000).refine(isGoogleMapsUrl, "Googleマップの共有URLを入力してください");
 
 const settingsSchema = z.object({
   storeName: z.string().trim().min(1).max(100),
@@ -18,7 +19,7 @@ const settingsSchema = z.object({
   locationId: z.string().trim().min(1).max(100),
   locationName: z.string().trim().min(1).max(100),
   locationAddress: z.string().trim().min(1).max(300),
-  mapUrl: httpsUrl.max(1000),
+  mapUrl: googleMapsUrl,
 });
 
 export async function GET(request: Request) {

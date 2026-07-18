@@ -67,3 +67,21 @@ export function formatYen(value: number): string {
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]!);
 }
+
+export function isGoogleMapsUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    const host = url.hostname.toLowerCase();
+    return url.protocol === "https:" && (
+      host === "maps.app.goo.gl" ||
+      host === "goo.gl" ||
+      host === "maps.google.com" ||
+      host === "www.google.com" ||
+      host.endsWith(".google.com") ||
+      host === "www.google.co.jp" ||
+      host.endsWith(".google.co.jp")
+    );
+  } catch {
+    return false;
+  }
+}

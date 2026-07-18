@@ -1,5 +1,6 @@
 import { appEnv, ensureDatabase, securityHeaders } from "@/lib/server";
 import { sampleMenu, createPickupTimes } from "@/lib/catalog";
+import { isGoogleMapsUrl } from "@/lib/domain";
 
 export async function GET() {
   await ensureDatabase();
@@ -14,6 +15,8 @@ export async function GET() {
     return { ...(base ?? { options: [], imageTone: "toriten" }), id: String(row.id), category: String(row.category_id), name: String(row.name), description: String(row.description), price: Number(row.price), ingredients: String(row.ingredients), allergens: String(row.allergens), spiciness: Number(row.spiciness), imageUrl: row.image_url ? String(row.image_url) : null, maxPerOrder: Number(row.max_per_order), soldOut: Boolean(row.is_sold_out), recommended: Boolean(row.is_recommended), isNew: Boolean(row.is_new) };
   });
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  const locations = locationRows.results.map((row) => ({ id: String(row.id), name: String(row.name), address: String(row.address), mapUrl: String(row.map_url) }));
+  const locations = locationRows.results
+    .filter((row) => isGoogleMapsUrl(String(row.map_url)))
+    .map((row) => ({ id: String(row.id), name: String(row.name), address: String(row.address), mapUrl: String(row.map_url) }));
   return Response.json({ setting, menu, locations, date, pickupTimes: createPickupTimes(), announcement: locations.length ? `本日の販売場所：${locations[0].name}` : "本日の販売場所は準備中です。" }, { headers: securityHeaders() });
 }
